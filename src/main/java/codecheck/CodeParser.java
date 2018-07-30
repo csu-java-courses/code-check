@@ -5,6 +5,7 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.comments.Comment;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -16,7 +17,8 @@ public class CodeParser {
 
     private String module;
     private Class aClass;
-    private String src = "src/main/java/";
+    private String src = "src";
+    private boolean comments = false;
 
     String code;
     CompilationUnit compilationUnit;
@@ -44,7 +46,13 @@ public class CodeParser {
         if (compilationUnit != null) {
             return compilationUnit;
         }
-        return compilationUnit = JavaParser.parse(loadCode());
+        compilationUnit = JavaParser.parse(loadCode());
+        if (!comments) {
+            for (Comment comment : compilationUnit.getAllContainedComments()) {
+                comment.remove();
+            }
+        }
+        return compilationUnit;
     }
 
     public ClassOrInterfaceDeclaration getClassDeclaration() throws IOException {
